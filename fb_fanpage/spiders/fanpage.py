@@ -1,43 +1,33 @@
 import scrapy
 import logging
 import re
-
 import pandas as pd
+
 from scrapy.http import FormRequest
+from fb_fanpage import debug
 
 class FanpageSpider(scrapy.Spider):
     name = "fanpage"
 
     custom_settings = {
-        'FEED_EXPORT_FIELDS': ['profile_url']
+        'FEED_EXPORT_FIELDS': ['profile_url'],
+        'DOWNLOAD_DELAY': 1
     }
 
     email = "tungcl0n3.1@gmail.com"
     password = "tungclone1"
-
-    # group_id = 'Divine.Shop.Steam'
-    # post_id = '2302909819763234'
-    # posts_id = []
-    link = None
+    link = "https://mbasic.facebook.com"
 
     def __init__(self, *args, **kwargs):
         logger = logging.getLogger('scrappy.middleware')
         logger.setLevel(logging.WARNING)
+
         super().__init__(*args, **kwargs)
-        if 'page' in kwargs:
-            self.link = '/{page}/posts/'.format(**kwargs),
-            self.link = self.link[0]
-        else:
-            self._link = '/groups/{group}/posts/'.format(**kwargs),
-            self.link = self.link[0]
         # get post ids from csv file
         filename = kwargs['from_file']
         df = pd.read_csv(filename)
         self.posts_id = df['post_id'].to_list()
-        # self.posts_id = ['1000971710027220']
-        self.start_urls = [
-            'https://mbasic.facebook.com'
-        ]
+        self.start_urls = ['https://mbasic.facebook.com']
 
     def parse(self, response):
         # login
@@ -57,7 +47,7 @@ class FanpageSpider(scrapy.Spider):
                 callback=self.parse_home)
         # navigate to posts
         for post_id in self.posts_id:
-            href = response.urljoin('{}{}'.format(self.link, post_id))
+            href = response.urljoin('{}/{}'.format(self.link, post_id))
             self.logger.info('Scrapping facebook page {}'.format(href))
             yield scrapy.Request(url=href, callback=self.parse_post)
 
@@ -67,13 +57,11 @@ class FanpageSpider(scrapy.Spider):
         return response.follow(reaction_href, self.parse_reactions)
 
     def parse_reactions(self, response):
-        # with open("crossfire.html", "wb") as f:
-        #     f.write(response.body)
-        # return
         self.logger.info(response.request.url)
+        # debug.write_html_byte(response)
+        # return
         reaction_list = response.css('ul')
         lines = reaction_list.css('li')
-        hrefs = []
         next_page = None
         for line in lines:
             href = line.css('a::attr(href)').extract_first()
