@@ -11,7 +11,7 @@ class FanpageSpider(scrapy.Spider):
 
     custom_settings = {
         'FEED_EXPORT_FIELDS': ['profile_url'],
-        'DOWNLOAD_DELAY': 1
+        'DOWNLOAD_DELAY': 0.25
     }
 
     email = "tungcl0n3.1@gmail.com"

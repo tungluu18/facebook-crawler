@@ -19,12 +19,14 @@ class ProfileSpider(scrapy.Spider):
 
     custom_settings = {
         'FEED_EXPORT_FIELDS': ['profile_url', 'uid'],
-        'HTTPERROR_ALLOWED_CODES': [404]
+        'HTTPERROR_ALLOWED_CODES': [404],
+        'DOWNLOAD_DELAY': 0.3,
     }
 
     def __init__(self, *args, **kwargs):
         filename = kwargs['from_file']
         df = pd.read_csv(filename)
+        df.drop_duplicates(subset=['profile_url'], keep='first', inplace=True)
         self.fb_urls = df['profile_url'].to_list()
         self.start_urls = [FINDMYFID_URI]
 
@@ -39,9 +41,9 @@ class ProfileSpider(scrapy.Spider):
                     formdata={'url': url},
                     callback=self.parse_findmyfid,
                     cb_kwargs=dict(fb_url=url))
-        self.logger.info('Scraped {} from findmyfid.com'.format(fb_url))
 
     def parse_findmyfid(self, response, fb_url):
+        self.logger.info('Scraped {} from findmyfid.com'.format(fb_url))
         res_body = json.loads(response.body_as_unicode())
         return dict(
             profile_url=fb_url,
