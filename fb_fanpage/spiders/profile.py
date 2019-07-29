@@ -20,7 +20,7 @@ class ProfileSpider(scrapy.Spider):
     custom_settings = {
         'FEED_EXPORT_FIELDS': ['profile_url', 'uid'],
         'HTTPERROR_ALLOWED_CODES': [404],
-        'DOWNLOAD_DELAY': 0.3,
+        'DOWNLOAD_DELAY': 0,
     }
 
     def __init__(self, *args, **kwargs):

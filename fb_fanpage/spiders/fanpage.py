@@ -11,7 +11,7 @@ class FanpageSpider(scrapy.Spider):
 
     custom_settings = {
         'FEED_EXPORT_FIELDS': ['profile_url'],
-        'DOWNLOAD_DELAY': 0.25
+        'DOWNLOAD_DELAY': 0.1
     }
 
     email = "tungcl0n3.1@gmail.com"
@@ -57,7 +57,7 @@ class FanpageSpider(scrapy.Spider):
         return response.follow(reaction_href, self.parse_reactions)
 
     def parse_reactions(self, response):
-        self.logger.info(response.request.url)
+        # self.logger.info(response.request.url)
         # debug.write_html_byte(response)
         # return
         reaction_list = response.css('ul')
